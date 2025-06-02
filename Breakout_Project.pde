@@ -5,6 +5,12 @@ color color2 = #123456;
 color color3=#C0FFEE;
 color color4= #abcdef;
 color color5=#959384;
+color lightRed=#cf655d;
+color lightPurple=#a15dcf;
+color lightBlue=#388bc9;
+color lightOrange=#f7b160;
+color red =#ff3838;
+color pink=#dfbbda;
 float ballx, bally, balld;
 float vx, vy;
 float ax, ay;
@@ -14,6 +20,13 @@ float x2, y2, d2;
 int playerPoints=0;
 float playerSpeed;
 float playerSize;
+int lives = 3;
+int[] arx;
+int[] ary;
+boolean[] alive;
+int z=55;
+int x1,y1;
+int brickd;
 import processing.sound.*;
 SoundFile fail;
 SoundFile success;
@@ -33,14 +46,29 @@ void setup() {
   ballx=width/2;
   bally=height/2;
   balld=50;
-
+  arx=new int[z];
+  ary=new int[z];
+  alive=new boolean[z];
+  x1=50;
+  y1=100;
   x=width/2;
   y=height;
   playerSize= 180;
-  
+  brickd=50;
     vx = 25;
     vy = 14;
     d=180;
+  for(int i=0;i<z;i++){
+        alive[i]=true;
+      arx[i]=x1;
+      ary[i]=y1;
+      x1+=100;
+      if(x1>=1500){
+        x1=50;
+        y1+=100;
+      }
+    } 
+  
 }
 void draw() {
   if (mode==INTRO) {
@@ -48,13 +76,45 @@ void draw() {
   } else if (mode==GAMEOVER) {
     gameOver();
   } else {
-
-    playerSpeed=10;
-    background(color4);
+    
+    background(lightPurple);
+    if(bally>1000){
+    ballx = width/2;
+    bally = height/2;
+    lives = lives-1;
+    }
+    
+    if(lives==0){
+      mode=3;
+    }
+    fill(0, 0,0);
+  for(int i=0;i<z;i++){
+    if(alive[i]==true){
+      circle(arx[i], ary[i], brickd);
+    }
+  }  
+  int i=0;
+  while(i<z){
+    if(alive[i]==true){
+      if(dist(ballx, bally, arx[i], ary[i])<balld/2+brickd/2){ 
+        vx=(ballx-arx[i])/random(0.5,6);
+        vy=(bally-ary[i])/random(0.5,6);
+        alive[i]=false;
+      }
+    }
+    i++;
+  }
+    playerSpeed=20;
     strokeWeight(5);
     stroke(color4);
     fill(255, 0, 0);
-
+    fill(black);
+    textSize(50);
+    text("lives: "+lives,100,50);
+    
+    fill(lightRed);
+    strokeWeight(2);
+    stroke(black);
     circle(ballx, bally, balld);
     ballx+=vx;
     bally+=vy;

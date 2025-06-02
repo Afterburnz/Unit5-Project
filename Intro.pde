@@ -1,6 +1,8 @@
 void intro(){
-  background(0,0,255);
+  background(lightBlue);
   fill(0);
   textSize(100);
-  text("Press r to start", 100,100);
+  textAlign(CENTER);
+  fill(pink);
+  text("Press r to start", 500,500);
 }

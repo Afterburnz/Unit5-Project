@@ -1,3 +1,7 @@
 void gameOver(){
-  background(255,0,0);
+  background(lightOrange);
+    textSize(100);
+    textAlign(CENTER);
+    fill(red);
+    text("U Dead", 500,500);
 }
