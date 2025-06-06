@@ -24,8 +24,8 @@ int lives = 3;
 int[] arx;
 int[] ary;
 boolean[] alive;
-int z=55;
-int n=55;
+int z=40;
+int n=40;
 int x1, y1;
 int brickd;
 int[] brickColor;
@@ -69,7 +69,7 @@ void setup() {
     ary[i]=y1;
     x1+=100;
     brickColor[i]=((x1+y1)/10);
-    if (x1>=1500) {
+    if (x1>=1000) {
       x1=50;
       y1+=100;
     }
@@ -82,7 +82,9 @@ void draw() {
     intro();
   } else if (mode==GAMEOVER) {
     gameOver();
-  } else {
+  } else if(mode==WIN){
+    win();
+  }else {
 
     background(lightPurple);
     if (bally>1000) {
@@ -169,7 +171,7 @@ void draw() {
   }
   
   if(n==0){
-  mode=3;
+  mode=4;
   }
   
 }
