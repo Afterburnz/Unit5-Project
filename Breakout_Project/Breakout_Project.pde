@@ -24,11 +24,14 @@ int lives = 3;
 int[] arx;
 int[] ary;
 boolean[] alive;
-int z=40;
-int n=40;
+int z=1;
+int n=1;
 int x1, y1;
 int brickd;
 int[] brickColor;
+PImage[] gif;
+int numberOfFrames=50;
+int i=0;
 import processing.sound.*;
 SoundFile fail;
 SoundFile success;
@@ -63,6 +66,15 @@ void setup() {
   d=180;
   rKey=true;
   brickColor=new int[z];
+  gif = new PImage[numberOfFrames];
+  
+  int f=0;
+  while(f<numberOfFrames) {
+    
+    gif[f] = loadImage("frame_"+f+"_delay-0.03s.gif");
+    f++;
+  }
+  
   for (int i=0; i<z; i++) {
     alive[i]=true;
     arx[i]=x1;
