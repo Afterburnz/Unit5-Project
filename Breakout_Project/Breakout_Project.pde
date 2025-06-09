@@ -13,8 +13,9 @@ color red =#ff3838;
 color pink=#dfbbda;
 float ballx, bally, balld;
 float vx, vy;
+float prevVx, prevVy;
 float ax, ay;
-boolean aKey, dKey, rKey;
+boolean aKey, dKey, rKey, pKey;
 float x, y, d;
 float x2, y2, d2;
 int playerPoints=0;
@@ -24,14 +25,15 @@ int lives = 3;
 int[] arx;
 int[] ary;
 boolean[] alive;
-int z=1;
-int n=1;
+int z=40;
+int n=40;
 int x1, y1;
 int brickd;
 int[] brickColor;
 PImage[] gif;
 int numberOfFrames=50;
 int i=0;
+boolean paused = false;
 import processing.sound.*;
 SoundFile fail;
 SoundFile success;
@@ -65,16 +67,18 @@ void setup() {
   vy = 14;
   d=180;
   rKey=true;
+  pKey=false;
   brickColor=new int[z];
   gif = new PImage[numberOfFrames];
-  
+  music.loop();
+  music.amp(1);
   int f=0;
-  while(f<numberOfFrames) {
-    
+  while (f<numberOfFrames) {
+
     gif[f] = loadImage("frame_"+f+"_delay-0.03s.gif");
     f++;
   }
-  
+
   for (int i=0; i<z; i++) {
     alive[i]=true;
     arx[i]=x1;
@@ -89,29 +93,28 @@ void setup() {
   }
 }
 void draw() {
-  println(frameRate);
+
   if (mode==INTRO) {
     intro();
   } else if (mode==GAMEOVER) {
     gameOver();
-  } else if(mode==WIN){
+  } else if (mode==WIN) {
     win();
-  }else {
+  } else {
 
     background(lightPurple);
     if (bally>1000) {
       ballx = width/2;
       bally = height/2;
       lives = lives-1;
+      fail.play();
     }
 
     if (lives==0) {
       mode=3;
-    }  
-    
-    if(abs(vy)<=0.5){
-      vy+=0.5;
     }
+
+
     fill(0, 0, 0);
     //for (int i=0; i<z; i++) {
     //  if (alive[i]==true) {
@@ -121,12 +124,13 @@ void draw() {
     int i=0;
     while (i<z) {
       if (alive[i]==true) {
-                fill(185, brickColor[i], 54);
+        fill(185, brickColor[i], 54);
         circle(arx[i], ary[i], brickd);
         if (dist(ballx, bally, arx[i], ary[i])<balld/2+brickd/2) {
           vx=(ballx-arx[i])/random(0.5, 6);
           vy=(bally-ary[i])/random(0.5, 6);
           alive[i]=false;
+          success.play();
           n=n-1;
         }
       }
@@ -139,6 +143,7 @@ void draw() {
     fill(black);
     textSize(50);
     text("lives: "+lives, 100, 50);
+    text("click to pause", 850, 50);
 
     fill(lightRed);
     strokeWeight(2);
@@ -167,8 +172,8 @@ void draw() {
     if (aKey) x-=playerSpeed;
     if (dKey) x+=playerSpeed;
   }
-  
-  
+
+
   if (dist(x, y, ballx, bally) <=d/2+balld/2) {
     vx=(ballx-x)/8;
     vy=(bally-y)/8;
@@ -181,18 +186,17 @@ void draw() {
   if (x>width-d/2) {
     x=width-d/2;
   }
-  
-  if(n==0){
-  mode=4;
+
+  if (n==0) {
+    mode=4;
   }
-  
 }
 
 void keyPressed() {
-  if (key=='a') {
+  if (key=='a' & paused == false) {
     aKey=true;
   }
-  if (key=='d') {
+  if (key=='d' & paused ==false) {
     dKey=true;
   }
 }
@@ -204,9 +208,26 @@ void keyReleased() {
     dKey=false;
   }
   if (key=='r') {
-    if(mode==0 & rKey==false){
+    if (mode==0 & rKey==false) {
       rKey=true;
     }
-    
   }
+
+
+}
+
+void mouseClicked() {
+  if (paused==false) {
+    prevVx=vx;
+    prevVy=vy;
+    vx=0;
+    vy=0;
+    paused = true;
+  } else if (paused==true) {
+    vx=prevVx;
+    vy=prevVy;
+    playerSpeed=25;
+    paused = false;
+  }
+
 }
