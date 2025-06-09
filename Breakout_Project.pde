@@ -13,8 +13,9 @@ color red =#ff3838;
 color pink=#dfbbda;
 float ballx, bally, balld;
 float vx, vy;
+float prevVx, prevVy;
 float ax, ay;
-boolean aKey, dKey;
+boolean aKey, dKey, rKey, pKey;
 float x, y, d;
 float x2, y2, d2;
 int playerPoints=0;
@@ -24,9 +25,15 @@ int lives = 3;
 int[] arx;
 int[] ary;
 boolean[] alive;
-int z=55;
-int x1,y1;
+int z=40;
+int n=40;
+int x1, y1;
 int brickd;
+int[] brickColor;
+PImage[] gif;
+int numberOfFrames=50;
+int i=0;
+boolean paused = false;
 import processing.sound.*;
 SoundFile fail;
 SoundFile success;
@@ -36,6 +43,7 @@ final int INTRO =0;
 final int GAME = 1;
 final int PAUSE =2;
 final int GAMEOVER =3;
+final int WIN=4;
 
 void setup() {
   size(1000, 1000, P2D);
@@ -55,63 +63,88 @@ void setup() {
   y=height;
   playerSize= 180;
   brickd=50;
-    vx = 25;
-    vy = 14;
-    d=180;
-  for(int i=0;i<z;i++){
-        alive[i]=true;
-      arx[i]=x1;
-      ary[i]=y1;
-      x1+=100;
-      if(x1>=1500){
-        x1=50;
-        y1+=100;
-      }
-    } 
-  
+  vx = 25;
+  vy = 14;
+  d=180;
+  rKey=true;
+  pKey=false;
+  brickColor=new int[z];
+  gif = new PImage[numberOfFrames];
+  music.loop();
+  music.amp(1);
+  int f=0;
+  while (f<numberOfFrames) {
+
+    gif[f] = loadImage("frame_"+f+"_delay-0.03s.gif");
+    f++;
+  }
+
+  for (int i=0; i<z; i++) {
+    alive[i]=true;
+    arx[i]=x1;
+    ary[i]=y1;
+    x1+=100;
+    brickColor[i]=((x1+y1)/10);
+    if (x1>=1000) {
+      x1=50;
+      y1+=100;
+    }
+    println(brickColor[i]);
+  }
 }
 void draw() {
+
   if (mode==INTRO) {
     intro();
   } else if (mode==GAMEOVER) {
     gameOver();
+  } else if (mode==WIN) {
+    win();
   } else {
-    
+
     background(lightPurple);
-    if(bally>1000){
-    ballx = width/2;
-    bally = height/2;
-    lives = lives-1;
+    if (bally>1000) {
+      ballx = width/2;
+      bally = height/2;
+      lives = lives-1;
+      fail.play();
     }
-    
-    if(lives==0){
+
+    if (lives==0) {
       mode=3;
     }
-    fill(0, 0,0);
-  for(int i=0;i<z;i++){
-    if(alive[i]==true){
-      circle(arx[i], ary[i], brickd);
-    }
-  }  
-  int i=0;
-  while(i<z){
-    if(alive[i]==true){
-      if(dist(ballx, bally, arx[i], ary[i])<balld/2+brickd/2){ 
-        vx=(ballx-arx[i])/random(0.5,6);
-        vy=(bally-ary[i])/random(0.5,6);
-        alive[i]=false;
+
+
+    fill(0, 0, 0);
+    //for (int i=0; i<z; i++) {
+    //  if (alive[i]==true) {
+
+    //  }
+    //}
+    int i=0;
+    while (i<z) {
+      if (alive[i]==true) {
+        fill(185, brickColor[i], 54);
+        circle(arx[i], ary[i], brickd);
+        if (dist(ballx, bally, arx[i], ary[i])<balld/2+brickd/2) {
+          vx=(ballx-arx[i])/random(0.5, 6);
+          vy=(bally-ary[i])/random(0.5, 6);
+          alive[i]=false;
+          success.play();
+          n=n-1;
+        }
       }
+      i++;
     }
-    i++;
-  }
-    playerSpeed=20;
+    playerSpeed=25;
     strokeWeight(5);
     stroke(color4);
     fill(255, 0, 0);
     fill(black);
     textSize(50);
-    text("lives: "+lives,100,50);
-    
+    text("lives: "+lives, 100, 50);
+    text("click to pause", 850, 50);
+
     fill(lightRed);
     strokeWeight(2);
     stroke(black);
@@ -139,6 +172,8 @@ void draw() {
     if (aKey) x-=playerSpeed;
     if (dKey) x+=playerSpeed;
   }
+
+
   if (dist(x, y, ballx, bally) <=d/2+balld/2) {
     vx=(ballx-x)/8;
     vy=(bally-y)/8;
@@ -151,13 +186,17 @@ void draw() {
   if (x>width-d/2) {
     x=width-d/2;
   }
+
+  if (n==0) {
+    mode=4;
+  }
 }
 
 void keyPressed() {
-  if (key=='a') {
+  if (key=='a' & paused == false) {
     aKey=true;
   }
-  if (key=='d') {
+  if (key=='d' & paused ==false) {
     dKey=true;
   }
 }
@@ -169,6 +208,26 @@ void keyReleased() {
     dKey=false;
   }
   if (key=='r') {
-    mode=1;
+    if (mode==0 & rKey==false) {
+      rKey=true;
+    }
   }
+
+
+}
+
+void mouseClicked() {
+  if (paused==false) {
+    prevVx=vx;
+    prevVy=vy;
+    vx=0;
+    vy=0;
+    paused = true;
+  } else if (paused==true) {
+    vx=prevVx;
+    vy=prevVy;
+    playerSpeed=25;
+    paused = false;
+  }
+
 }
